@@ -1,0 +1,25 @@
+{
+  "name": "bamazon-database",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SomatThakali/bamazon-database.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SomatThakali/bamazon-database/issues"
+  },
+  "homepage": "https://github.com/SomatThakali/bamazon-database#readme",
+  "dependencies": {
+    "colors": "^1.3.3",
+    "inquirer": "^6.2.2",
+    "mysql": "^2.16.0"
+  }
+}
