@@ -50,7 +50,7 @@ function runSearch() {
           break;
 
         case "Add New Product":
-          //   addNewProduct();
+          addNewProduct();
           break;
 
         case "exit":
@@ -60,6 +60,10 @@ function runSearch() {
     });
 }
 
+/**
+ * This function will print the products
+ * @param {obj} products
+ */
 function printProducts(products) {
   var table = new Table({
     head: ["ID", "Product Name", "Department", "Price", "Stock quantity"],
@@ -80,6 +84,7 @@ function printProducts(products) {
   console.log(table.toString());
 }
 
+/** This function will select and prints all the product */
 function viewProducts() {
   var query = "SELECT * FROM products";
   connection.query(query, function(err, products) {
@@ -89,6 +94,7 @@ function viewProducts() {
   });
 }
 
+/** This function will prints all the product  of stock quantity less than 10 */
 function viewLowInventory() {
   var query = "SELECT * FROM products WHERE stock_quantity < 10";
   connection.query(query, function(err, products) {
@@ -98,19 +104,125 @@ function viewLowInventory() {
   });
 }
 
-// function addToInventory() {
-//   inquirer
-//     .prompt({
-//       name: "inventory",
-//       type: "input",
-//       message: "Which item would you like to add?",
-//       choices: [
-//         "ipad",
-//         "View Low Inventory",
-//         "Add to Inventory",
-//         "Add New Product",
-//         "exit"
-//       ]
-//     })
-//     .then(function(answer) {});
-// }
+/** This function will add the quantity of the product */
+function addToInventory() {
+  inquirer
+    .prompt([
+      {
+        name: "action",
+        type: "list",
+        message: "Which item would you like to add?",
+        choices: [
+          "iPhone",
+          "ipad",
+          "Nike Hoodies",
+          "Milkman, A novel",
+          "LG Microwave",
+          "Call Duty",
+          "Turbo Tax",
+          "The five Presidents",
+          "Pampers",
+          "bamazon Gift Card"
+        ]
+      },
+      {
+        name: "quantity",
+        type: "input",
+        message: "How many units would you like to add?",
+        validate: function(value) {
+          if (isNaN(value) === false) {
+            return true;
+          }
+          return false;
+        }
+      }
+    ])
+    .then(function(answer) {
+      var query = `SELECT * FROM products WHERE product_name="${
+        answer.action
+      }"`;
+      connection.query(query, function(err, res) {
+        if (err) throw err;
+        addQuantity(answer, res);
+      });
+    });
+}
+
+/** This function will add the new product */
+function addNewProduct() {
+  inquirer
+    .prompt([
+      {
+        name: "item",
+        type: "INPUT",
+        message: "Enter the name of the product that you would like to add."
+      },
+      {
+        name: "department",
+        type: "list",
+        message: "Choose the department you would like to add your product to.",
+        choices: [
+          "Electronics",
+          "Clothing",
+          "Books",
+          "Appliances",
+          "Video games",
+          "Software",
+          "Collectibles and fine Arts",
+          "Baby",
+          "Gift"
+        ]
+      },
+      {
+        name: "price",
+        type: "input",
+        message: "Enter the price for this product."
+      },
+      {
+        name: "stock",
+        type: "input",
+        message: "Enter the Stock Quantity"
+      }
+    ])
+    .then(function(answer) {
+      var item = {
+        product_name: answer.item,
+        department_name: answer.department,
+        price: answer.price,
+        stock_quantity: answer.stock
+      };
+      connection.query("INSERT INTO Products SET ?", item, function(err) {
+        if (err) throw err;
+        console.log(
+          ` ${item.stock_quantity} ${item.product_name} added successfully`
+        );
+        runSearch();
+      });
+    });
+}
+
+/** This function is a helper function which will add the quantity of the selected item */
+function addQuantity(answer, respond) {
+  var product = respond[0];
+
+  connection.query(
+    "UPDATE products SET ? WHERE ?",
+    [
+      {
+        stock_quantity:
+          parseInt(product.stock_quantity) + parseInt(answer.quantity)
+      },
+      {
+        product_name: answer.action
+      }
+    ],
+    function(error) {
+      if (error) throw error;
+      var confirmMessage = `\nAdded ${answer.quantity} ${
+        answer.action
+      }s successfully!\n`;
+      console.log(confirmMessage.bold.green);
+      runSearch();
+    }
+  );
+}

@@ -85,13 +85,13 @@ function productSearch() {
  * @param {obj} respond
  */
 function checkQuantityAndCalculatePrice(answer, respond) {
-  var productData = respond[0];
-  if (answer.quantity <= productData.stock_quantity) {
+  var product = respond[0];
+  if (answer.quantity <= product.stock_quantity) {
     connection.query(
       "UPDATE products SET ? WHERE ?",
       [
         {
-          stock_quantity: productData.stock_quantity - answer.quantity
+          stock_quantity: product.stock_quantity - answer.quantity
         },
         {
           item_id: answer.item_id
@@ -100,9 +100,7 @@ function checkQuantityAndCalculatePrice(answer, respond) {
       function(error) {
         if (error) throw error;
         console.log("Placed Order successfully!");
-        console.log(
-          `The total cost is $ ${answer.quantity * productData.price}.`
-        );
+        console.log(`The total cost is $ ${answer.quantity * product.price}.`);
         connection.end();
       }
     );
