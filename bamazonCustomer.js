@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var colors = require("colors");
+var Table = require("cli-table");
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -17,18 +18,27 @@ var connection = mysql.createConnection({
 
 function displayProducts() {
   var query = "SELECT * FROM products";
-  connection.query(query, function(err, rows) {
-    // console.log(rows);
-    var dataPrint = "";
-    rows.forEach(data => {
-      dataPrint += `Item ID: ${data.item_id}\n`;
-      dataPrint += `Product Name: ${data.product_name.bold.red}\n`;
-      dataPrint += `Department: ${data.department_name.bold.red}\n`;
-      dataPrint += `Price: ${data.price}\n`;
-      dataPrint += `Stock quantity: ${data.stock_quantity}\n`;
-      dataPrint += `----------------------------------\n`;
+  connection.query(query, function(err, products) {
+    if (err) throw err;
+
+    var table = new Table({
+      head: ["ID", "Product Name", "Department", "Price", "Stock quantity"],
+      colWidths: [5, 30, 30, 15, 25]
     });
-    console.log(dataPrint);
+
+    products.forEach(
+      ({ item_id, product_name, department_name, price, stock_quantity }) => {
+        table.push([
+          item_id,
+          product_name,
+          department_name,
+          price,
+          stock_quantity
+        ]);
+      }
+    );
+    console.log(table.toString());
+
     productSearch();
   });
 }
@@ -91,7 +101,7 @@ function checkQuantityAndCalculatePrice(answer, respond) {
         if (error) throw error;
         console.log("Placed Order successfully!");
         console.log(
-          `The total cost is $${answer.quantity * productData.price}.`
+          `The total cost is $ ${answer.quantity * productData.price}.`
         );
         connection.end();
       }
