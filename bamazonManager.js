@@ -1,9 +1,9 @@
-var mysql = require("mysql");
-var inquirer = require("inquirer");
-var colors = require("colors");
-var Table = require("cli-table");
+const mysql = require("mysql");
+const inquirer = require("inquirer");
+const colors = require("colors");
+const Table = require("cli-table");
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: "localhost",
 
   port: 3306,
@@ -61,11 +61,11 @@ function runSearch() {
 }
 
 /**
- * This function will print the products
+ * This function will print the table of products
  * @param {obj} products
  */
 function printProducts(products) {
-  var table = new Table({
+  let table = new Table({
     head: ["ID", "Product Name", "Department", "Price", "Stock quantity"],
     colWidths: [5, 30, 30, 15, 25]
   });
@@ -86,7 +86,7 @@ function printProducts(products) {
 
 /** This function will select and prints all the product */
 function viewProducts() {
-  var query = "SELECT * FROM products";
+  const query = "SELECT * FROM products";
   connection.query(query, function(err, products) {
     if (err) throw err;
     printProducts(products);
@@ -94,9 +94,9 @@ function viewProducts() {
   });
 }
 
-/** This function will prints all the product  of stock quantity less than 10 */
+/** This function will prints all the product of stock quantity less than 10 */
 function viewLowInventory() {
-  var query = "SELECT * FROM products WHERE stock_quantity < 10";
+  let query = "SELECT * FROM products WHERE stock_quantity < 10";
   connection.query(query, function(err, products) {
     if (err) throw err;
     printProducts(products);
@@ -106,24 +106,32 @@ function viewLowInventory() {
 
 /** This function will add the quantity of the product */
 function addToInventory() {
+  var productName = [];
+  connection.query("SELECT product_name FROM products", function(
+    err,
+    products
+  ) {
+    if (err) throw err;
+    products.forEach(product => {
+      productName.push(product.product_name);
+    });
+    // console.log(productName);
+    inquirerAfterAdd(productName);
+  });
+}
+
+/**
+ *
+ * @param {string[]} choices
+ */
+function inquirerAfterAdd(choices) {
   inquirer
     .prompt([
       {
         name: "action",
         type: "list",
         message: "Which item would you like to add?",
-        choices: [
-          "iPhone",
-          "ipad",
-          "Nike Hoodies",
-          "Milkman, A novel",
-          "LG Microwave",
-          "Call Duty",
-          "Turbo Tax",
-          "The five Presidents",
-          "Pampers",
-          "bamazon Gift Card"
-        ]
+        choices: choices
       },
       {
         name: "quantity",
@@ -138,7 +146,7 @@ function addToInventory() {
       }
     ])
     .then(function(answer) {
-      var query = `SELECT * FROM products WHERE product_name="${
+      let query = `SELECT * FROM products WHERE product_name="${
         answer.action
       }"`;
       connection.query(query, function(err, res) {
@@ -185,7 +193,7 @@ function addNewProduct() {
       }
     ])
     .then(function(answer) {
-      var item = {
+      let item = {
         product_name: answer.item,
         department_name: answer.department,
         price: answer.price,
@@ -203,7 +211,7 @@ function addNewProduct() {
 
 /** This function is a helper function which will add the quantity of the selected item */
 function addQuantity(answer, respond) {
-  var product = respond[0];
+  let product = respond[0];
 
   connection.query(
     "UPDATE products SET ? WHERE ?",
@@ -218,7 +226,7 @@ function addQuantity(answer, respond) {
     ],
     function(error) {
       if (error) throw error;
-      var confirmMessage = `\nAdded ${answer.quantity} ${
+      let confirmMessage = `\nAdded ${answer.quantity} ${
         answer.action
       }s successfully!\n`;
       console.log(confirmMessage.bold.green);

@@ -1,9 +1,9 @@
-var mysql = require("mysql");
-var inquirer = require("inquirer");
-var colors = require("colors");
-var Table = require("cli-table");
+const mysql = require("mysql");
+const inquirer = require("inquirer");
+const colors = require("colors");
+const Table = require("cli-table");
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: "localhost",
 
   port: 3306,
@@ -17,11 +17,11 @@ var connection = mysql.createConnection({
 });
 
 function displayProducts() {
-  var query = "SELECT * FROM products";
+  const query = "SELECT * FROM products";
   connection.query(query, function(err, products) {
     if (err) throw err;
 
-    var table = new Table({
+    let table = new Table({
       head: ["ID", "Product Name", "Department", "Price", "Stock quantity"],
       colWidths: [5, 30, 30, 15, 25]
     });
@@ -70,7 +70,7 @@ function productSearch() {
       }
     ])
     .then(function(answer) {
-      var query = `SELECT * FROM products WHERE item_id="${answer.item_id}"`;
+      let query = `SELECT * FROM products WHERE item_id="${answer.item_id}"`;
 
       connection.query(query, function(err, res) {
         if (err) throw err;
@@ -85,7 +85,7 @@ function productSearch() {
  * @param {obj} respond
  */
 function checkQuantityAndCalculatePrice(answer, respond) {
-  var product = respond[0];
+  let product = respond[0];
   if (answer.quantity <= product.stock_quantity) {
     connection.query(
       "UPDATE products SET ? WHERE ?",
