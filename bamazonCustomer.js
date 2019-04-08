@@ -62,7 +62,6 @@ function buyProducts() {
       connection.query(query, function(err, res) {
         if (err) throw err;
         checkQuantityAndCalculatePrice(answer, res);
-        salesRevenue(answer, res);
       });
     });
 }
@@ -80,7 +79,10 @@ function checkQuantityAndCalculatePrice(answer, response) {
       [
         {
           stock_quantity:
-            parseInt(product.stock_quantity) - parseInt(answer.quantity)
+            parseInt(product.stock_quantity) - parseInt(answer.quantity),
+          product_sales:
+            parseInt(product.price) * parseInt(answer.quantity) +
+            parseInt(product.product_sales)
         },
         {
           item_id: answer.item_id
@@ -100,26 +102,6 @@ function checkQuantityAndCalculatePrice(answer, response) {
   } else {
     console.log("Insufficient quantity!");
   }
-}
-
-function salesRevenue(answer, response) {
-  let customerCost = response[0];
-
-  connection.query(
-    "UPDATE products SET ? WHERE ?",
-    [
-      {
-        product_sales: parseInt(customerCost.price) * parseInt(answer.quantity)
-      },
-      {
-        item_id: answer.item_id
-      }
-    ],
-    function(error, response) {
-      if (error) throw error;
-      // console.log(customerCost);
-    }
-  );
 }
 
 displayProducts();
