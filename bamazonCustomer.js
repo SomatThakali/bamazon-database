@@ -39,11 +39,11 @@ function displayProducts() {
     );
     console.log(table.toString());
 
-    productSearch();
+    buyProducts();
   });
 }
 
-function productSearch() {
+function buyProducts() {
   inquirer
     .prompt([
       {
@@ -75,6 +75,7 @@ function productSearch() {
       connection.query(query, function(err, res) {
         if (err) throw err;
         checkQuantityAndCalculatePrice(answer, res);
+        salesRevenue(answer, res);
       });
     });
 }
@@ -82,16 +83,17 @@ function productSearch() {
 /**
  * This function will check the quantity and calculate the total price
  * @param {int} answer
- * @param {obj} respond
+ * @param {obj} response
  */
-function checkQuantityAndCalculatePrice(answer, respond) {
-  let product = respond[0];
+function checkQuantityAndCalculatePrice(answer, response) {
+  let product = response[0];
   if (answer.quantity <= product.stock_quantity) {
     connection.query(
       "UPDATE products SET ? WHERE ?",
       [
         {
-          stock_quantity: product.stock_quantity - answer.quantity
+          stock_quantity:
+            parseInt(product.stock_quantity) - parseInt(answer.quantity)
         },
         {
           item_id: answer.item_id
@@ -99,8 +101,12 @@ function checkQuantityAndCalculatePrice(answer, respond) {
       ],
       function(error) {
         if (error) throw error;
-        console.log("Placed Order successfully!");
-        console.log(`The total cost is $ ${answer.quantity * product.price}.`);
+        let message = [
+          `\nPlaced Order successfully!\n`,
+          `The total cost is $ ${answer.quantity * product.price}.\n`
+        ];
+        console.log(message[0].bold.green);
+        console.log(message[1].bold.green);
         connection.end();
       }
     );
@@ -108,4 +114,25 @@ function checkQuantityAndCalculatePrice(answer, respond) {
     console.log("Insufficient quantity!");
   }
 }
+
+function salesRevenue(answer, response) {
+  let customerCost = response[0];
+
+  connection.query(
+    "UPDATE products SET ? WHERE ?",
+    [
+      {
+        product_sales: parseInt(customerCost.price) * parseInt(answer.quantity)
+      },
+      {
+        item_id: answer.item_id
+      }
+    ],
+    function(error, response) {
+      if (error) throw error;
+      // console.log(customerCost);
+    }
+  );
+}
+
 displayProducts();

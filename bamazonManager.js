@@ -158,6 +158,19 @@ function inquirerAfterAdd(choices) {
 
 /** This function will add the new product */
 function addNewProduct() {
+  let departmentName = [];
+  connection.query("SELECT department_name FROM departments", function(
+    err,
+    products
+  ) {
+    if (err) throw err;
+    products.forEach(product => {
+      if (departmentName.indexOf(product.department_name) === -1) {
+        departmentName.push(product.department_name);
+      }
+    });
+  });
+
   inquirer
     .prompt([
       {
@@ -169,17 +182,7 @@ function addNewProduct() {
         name: "department",
         type: "list",
         message: "Choose the department you would like to add your product to.",
-        choices: [
-          "Electronics",
-          "Clothing",
-          "Books",
-          "Appliances",
-          "Video games",
-          "Software",
-          "Collectibles and fine Arts",
-          "Baby",
-          "Gift"
-        ]
+        choices: departmentName
       },
       {
         name: "price",

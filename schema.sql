@@ -13,6 +13,7 @@ CREATE TABLE products(
   department_name VARCHAR(100)  NOT NULL,
   price DECIMAL(10, 4) NOT NULL,
   stock_quantity INT NOT NULL,
+  product_sales DECIMAL(10, 4)  DEFAULT 0
   PRIMARY KEY (item_id)
 );
 
@@ -50,3 +51,15 @@ INSERT INTO products (product_name, department_name, price, stock_quantity)
 VALUES ("bamazaon gift card", "Gift", 100, 2501);
 
 
+CREATE TABLE departments (
+  department_id INT NOT NULL AUTO_INCREMENT,
+  department_name VARCHAR(100)  NOT NULL,
+  over_head_cost DECIMAL(10, 4) NOT NULL,
+  PRIMARY KEY (item_id)
+);
+
+SELECT department_id, departments.department_name, over_head_cost, SUM(product_sales) AS product_sales, SUM(product_sales) - over_head_cost AS total_profit
+FROM departments
+INNER JOIN products
+ON departments.department_name = products.department_name
+GROUP BY department_id;
