@@ -31,39 +31,53 @@ function displayProducts() {
 }
 
 function buyProducts() {
-  inquirer
-    .prompt([
-      {
-        name: "item_id",
-        type: "input",
-        message: "Enter the ID of the product you would like to buy?",
-        validate: function(value) {
-          if (isNaN(value) === false) {
-            return true;
-          }
-          return false;
-        }
-      },
-      {
-        name: "quantity",
-        type: "input",
-        message: "How many units would you like to buy?",
-        validate: function(value) {
-          if (isNaN(value) === false) {
-            return true;
-          }
-          return false;
-        }
-      }
-    ])
-    .then(function(answer) {
-      let query = `SELECT * FROM products WHERE item_id="${answer.item_id}"`;
-
-      connection.query(query, function(err, res) {
-        if (err) throw err;
-        checkQuantityAndCalculatePrice(answer, res);
-      });
+  let itemIdArr = [];
+  connection.query("SELECT item_id FROM products", function(err, products) {
+    if (err) throw err;
+    /** Get all the id stored in the database */
+    products.forEach(product => {
+      itemIdArr.push(product.item_id);
     });
+    // console.log(itemIdArr);
+
+    inquirer
+      .prompt([
+        {
+          name: "item_id",
+          type: "input",
+          message: "Enter the ID of the product you would like to buy?",
+          /** Check if the input is a number or the item id is on the database */
+          validate: function(value) {
+            if (
+              isNaN(value) === false &&
+              itemIdArr.indexOf(parseInt(value)) > -1
+            ) {
+              return true;
+            }
+            return false;
+          }
+        },
+        {
+          name: "quantity",
+          type: "input",
+          message: "How many units would you like to buy?",
+          validate: function(value) {
+            if (isNaN(value) === false) {
+              return true;
+            }
+            return false;
+          }
+        }
+      ])
+      .then(function(answer) {
+        let query = `SELECT * FROM products WHERE item_id="${answer.item_id}"`;
+
+        connection.query(query, function(err, res) {
+          if (err) throw err;
+          checkQuantityAndCalculatePrice(answer, res);
+        });
+      });
+  });
 }
 
 /**
