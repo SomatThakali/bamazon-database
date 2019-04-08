@@ -103,44 +103,37 @@ function addToInventory() {
       productName.push(product.product_name);
     });
     // console.log(productName);
-    inquirerAfterAdd(productName);
-  });
-}
-
-/**
- *
- * @param {string[]} choices
- */
-function inquirerAfterAdd(choices) {
-  inquirer
-    .prompt([
-      {
-        name: "action",
-        type: "list",
-        message: "Which item would you like to add?",
-        choices: choices
-      },
-      {
-        name: "quantity",
-        type: "input",
-        message: "How many units would you like to add?",
-        validate: function(value) {
-          if (isNaN(value) === false) {
-            return true;
+    // inquirerAfterAdd(productName);
+    inquirer
+      .prompt([
+        {
+          name: "action",
+          type: "list",
+          message: "Which item would you like to add?",
+          choices: productName
+        },
+        {
+          name: "quantity",
+          type: "input",
+          message: "How many units would you like to add?",
+          validate: function(value) {
+            if (isNaN(value) === false) {
+              return true;
+            }
+            return false;
           }
-          return false;
         }
-      }
-    ])
-    .then(function(answer) {
-      let query = `SELECT * FROM products WHERE product_name="${
-        answer.action
-      }"`;
-      connection.query(query, function(err, res) {
-        if (err) throw err;
-        addQuantity(answer, res);
+      ])
+      .then(function(answer) {
+        let query = `SELECT * FROM products WHERE product_name="${
+          answer.action
+        }"`;
+        connection.query(query, function(err, res) {
+          if (err) throw err;
+          addQuantity(answer, res);
+        });
       });
-    });
+  });
 }
 
 /** This function will add the new product */
