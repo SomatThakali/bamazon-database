@@ -99,11 +99,11 @@ function addToInventory() {
     products
   ) {
     if (err) throw err;
+    /** Get all the products name stored in the database */
     products.forEach(product => {
       productName.push(product.product_name);
     });
     // console.log(productName);
-    // inquirerAfterAdd(productName);
     inquirer
       .prompt([
         {
@@ -144,6 +144,7 @@ function addNewProduct() {
     products
   ) {
     if (err) throw err;
+    /** Get all the deparments stored in the database */
     products.forEach(product => {
       if (departmentName.indexOf(product.department_name) === -1) {
         departmentName.push(product.department_name);
